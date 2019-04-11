@@ -6,8 +6,8 @@ from classes_functions import *
 pg.init()
 
 game_points = 0
-display_heighth = 360
-display_width = 640
+display_heighth = 600
+display_width = 800
 bullets = []
 vel = 5
 x = 30
@@ -46,11 +46,13 @@ running_game = True
 running = True
 
 while running:
+	keys = pg.key.get_pressed()
 	pg.time.delay(20)
 	all_events = pg.event.get()
 	for event in all_events:
-		if event.type == pg.QUIT:
+		if event.type == pg.QUIT or keys[pg.K_ESCAPE]:
 		  running = False
+
 		if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
 			game_points -= 50
 			mouse_x = pg.mouse.get_pos()[0]
@@ -68,7 +70,7 @@ while running:
 
 			bullets.append(bullet(player_object.left + int(player_object.width/2), player_object.top + int(player_object.width/2), bullet_x_step, bullet_y_step, win))
 
-	keys = pg.key.get_pressed()
+	
 	win.fill((255,255,255))
 
 	for object_ in map_objects:
@@ -88,18 +90,18 @@ while running:
 
 		# if(((object_.top <= y + player_size) and (object_.top + object_.heigth+ walloffset >= y - player_size)) and (object_.left + object_.width <= x - player_size and object_.left + object_.width + walloffset >= x - player_size)):
 		# 	no_a = True
+		if(type(object_) is not zone):
+			if((object_.top <= player_object.top + player_object.heigth) and (object_.top + object_.heigth >= player_object.top) and (object_.left == player_object.left + player_object.width)):
+				no_d = True
+				
+			if((object_.top <= player_object.top + player_object.heigth) and (object_.top + object_.heigth >= player_object.top) and (object_.left + object_.width == player_object.left)):
+				no_a = True
 
-		if((object_.top <= player_object.top + player_object.heigth) and (object_.top + object_.heigth >= player_object.top) and (object_.left == player_object.left + player_object.width)):
-			no_d = True
-			
-		if((object_.top <= player_object.top + player_object.heigth) and (object_.top + object_.heigth >= player_object.top) and (object_.left + object_.width == player_object.left)):
-			no_a = True
+			if((object_.left <= player_object.left + player_object.width) and (object_.left + object_.width >= player_object.left) and (object_.top + object_.heigth == player_object.top)):
+				no_w = True
 
-		if((object_.left <= player_object.left + player_object.width) and (object_.left + object_.width >= player_object.left) and (object_.top + object_.heigth == player_object.top)):
-			no_w = True
-
-		if((object_.left <= player_object.left + player_object.width) and (object_.left + object_.width >= player_object.left) and (object_.top == player_object.top + player_object.heigth)):
-			no_s = True
+			if((object_.left <= player_object.left + player_object.width) and (object_.left + object_.width >= player_object.left) and (object_.top == player_object.top + player_object.heigth)):
+				no_s = True
 
 
 		object_.draw()
@@ -107,16 +109,21 @@ while running:
 			object_.debug_draw()
 			object_.walk()
 			for object_to_compare in map_objects:
-				if(check_colission(object_, player_object)):
-						game_points = 0
-						player_object.top = player_start_y - player_radius
-						player_object.left = player_start_x - player_radius
-						map_objects = map_objects_init(win)
-						break;
-				if(object_ != object_to_compare):
+				if(object_ != object_to_compare and type(object_to_compare) is not zone):
 					if(check_colission(object_, object_to_compare) or check_wall_colission(object_)):
 						object_.change_direction()
-						break;
+						break
+			if(check_colission(object_, player_object)):
+				game_points = 0
+				player_object.top = player_start_y - player_radius
+				player_object.left = player_start_x - player_radius
+				map_objects = map_objects_init(win)
+		if(type(object_) is zone):
+			if(check_colission(object_, player_object)):
+				game_points += 500
+				player_object.top = player_start_y - player_radius
+				player_object.left = player_start_x - player_radius
+				map_objects = map_objects_init(win)
 					
 
 
@@ -162,7 +169,9 @@ while running:
 	
 	game_points_text = font.render(str(game_points), True, (0, 0, 0))
 	win.blit(game_points_text, (display_width - game_points_text.get_width(), 0))
-	player_object.draw()		
-	#print(len(bullets))
+	player_object.draw()
 	pg.display.update()
 
+pg.display.quit()
+pg.quit()
+exit(0)

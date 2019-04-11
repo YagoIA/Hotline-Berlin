@@ -5,8 +5,8 @@ import random
 bullet_vel = 20
 player_size = 10
 enemy_vel = 5
-display_heighth = 360
-display_width = 640
+display_heighth = 600
+display_width = 800
 
 class player:
 	def __init__(self, char_x, char_y, radius, win_):
@@ -51,7 +51,6 @@ class wall:
 		self.width = position[2]
 		self.heigth = position[3]
 		self.win = win_
-		self.draw()
 	def draw(self):
 		pg.draw.rect(self.win, (0,0,200), (self.left, self.top, self.width, self.heigth))
 
@@ -94,6 +93,15 @@ class mouse:
 	left = 0
 	top = 0
 
+class zone(wall):
+	"""docstring for zone"""
+	def __init__(self, position, win_):
+		super().__init__(position, win_)
+
+	def draw(self):
+		pg.draw.rect(self.win, (255, 0, 255), (self.left, self.top, self.width, self.heigth))
+		
+		
 #object_1 should be a wall
 #object_2 should be bullet, enemy or player
 def check_colission(object_1, object_2):
@@ -119,12 +127,15 @@ def map_objects_init(win):
 		if(line == "---enemy---\n"):
 			mode = 2
 
+		if(line == "---zone---\n"):
+			mode = 3
+
 		if(mode == 1 and line != "---wall---\n"):
 			map_objects.append(wall(make_tuple(line), win))
 
 		if(mode == 2 and line != "---enemy---\n"):
-			print(make_tuple(line))
 			map_objects.append(enemy(make_tuple(line), win))
-			print(make_tuple(line)[0])
-			print(line)
+
+		if(mode == 3 and line != "---zone---\n"):
+			map_objects.append(zone(make_tuple(line),win))
 	return map_objects

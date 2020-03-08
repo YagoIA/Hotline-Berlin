@@ -17,6 +17,7 @@ class player:
 		self.win = win_
 		self.heldweapons = [0,1]
 		self.currentweapon = self.heldweapons[0]
+		self.ammunition = [50,3] #Len() = No. of weapons
 	def draw(self):
 		pg.draw.circle(self.win, (0,255,0), (self.left + int((self.width)/2), self.top + int((self.width)/2)), int((self.width)/2))
 

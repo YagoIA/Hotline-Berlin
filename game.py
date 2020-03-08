@@ -4,7 +4,28 @@ import random
 from classes_functions import *
 from weapons import *
 
+audio_enabled = True
+
+
+pg.mixer.pre_init(44100, -16, 1, 512)
 pg.init()
+
+try:
+	pg.mixer.init(44100, -16, 1, 512)
+
+
+except pg.error as e:
+	audio_enabled = False
+	weapon_sounds = []
+	print(e)
+
+
+
+if(audio_enabled == True):
+
+	pistolSound = pg.mixer.Sound("assets/pistol.wav")
+	shotgunSound = pg.mixer.Sound("assets/shotgun.wav")
+	weapon_sounds = [pistolSound,shotgunSound]
 
 game_points = 0
 display_heighth = 600
@@ -56,8 +77,9 @@ while running:
 
 		if event.type == pg.MOUSEBUTTONDOWN:
 			if event.button == 1:
-				shootweapon(player_object, bullet_vel, bullets, win)
-				game_points -= 50
+				if shootweapon(player_object, bullet_vel, bullets, audio_enabled, weapon_sounds,win) == True:
+					game_points -= 50
+
 			if event.button == 4:
 				player_object.next_weapon()
 			if event.button == 5:
@@ -110,8 +132,7 @@ while running:
 
 			if(check_colission(object_, player_object)):
 				game_points = 0
-				player_object.top = player_start_y - player_radius
-				player_object.left = player_start_x - player_radius
+				player_object = player(player_start_x, player_start_y, player_radius, win)
 				map_objects = map_objects_init(win)
 
 		if(type(object_) is zone):
@@ -163,12 +184,12 @@ while running:
 				break
 				
 	#TODO create displayPoints()
-	game_points_text = font.render(str(game_points), True, (0, 0, 0))
+	game_points_text = font.render("Punkte: " + str(game_points), True, (0, 0, 0))
 	win.blit(game_points_text, (display_width - game_points_text.get_width(), 0))
 
 
 	player_object.draw()
-	displayCurrentWeapon(player_object, win)
+	displayCurrentWeapon(player_object, win, font)
 	pg.display.update()
 
 

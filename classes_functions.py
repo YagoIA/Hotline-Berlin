@@ -15,6 +15,8 @@ class player:
 		self.width = radius*2
 		self.heigth = radius*2
 		self.win = win_
+		self.heldweapons = [0,1]
+		self.currentweapon = self.heldweapons[0]
 	def draw(self):
 		pg.draw.circle(self.win, (0,255,0), (self.left + int((self.width)/2), self.top + int((self.width)/2)), int((self.width)/2))
 
@@ -24,9 +26,19 @@ class player:
 		pg.draw.line(self.win, (255,0,0), (self.left + self.width, self.top + self.heigth), (self.left + self.width, self.top), 1)
 		pg.draw.line(self.win, (255,0,0), (self.left, self.top), (self.left + self.width, self.top), 1)
 
+	def next_weapon(self):
+		if self.heldweapons.index(self.currentweapon) != len(self.heldweapons)-1:
+			self.currentweapon = self.heldweapons[self.heldweapons.index(self.currentweapon)+1]
+
+			
+
+	def previous_weapon(self):
+		if self.heldweapons.index(self.currentweapon) != 0:
+			self.currentweapon = self.heldweapons[self.heldweapons.index(self.currentweapon)-1]
+	
+
 
 class bullet:
-
 	def __init__(self, char_x, char_y, x_step_, y_step_, win_):
 		self.left = char_x - 2
 		self.top = char_y - 2
@@ -139,3 +151,4 @@ def map_objects_init(win):
 		if(mode == 3 and line != "---zone---\n"):
 			map_objects.append(zone(make_tuple(line),win))
 	return map_objects
+

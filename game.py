@@ -2,6 +2,7 @@ import pygame as pg
 import math
 import random
 from classes_functions import *
+from weapons import *
 
 pg.init()
 
@@ -53,22 +54,15 @@ while running:
 		if event.type == pg.QUIT or keys[pg.K_ESCAPE]:
 		  running = False
 
-		if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-			game_points -= 50
-			mouse_x = pg.mouse.get_pos()[0]
-			mouse_y = pg.mouse.get_pos()[1]
-			hypotenuse = math.sqrt(math.pow(player_object.left + int(player_object.width/2)-mouse_x,2)+math.pow(player_object.top + int(player_object.width/2)-mouse_y,2))
-			winkel = -(math.asin((player_object.top + int(player_object.width/2)-mouse_y)/hypotenuse))
+		if event.type == pg.MOUSEBUTTONDOWN:
+			if event.button == 1:
+				shootweapon(player_object, bullet_vel, bullets, win)
+				game_points -= 50
+			if event.button == 4:
+				player_object.next_weapon()
+			if event.button == 5:
+				player_object.previous_weapon()
 
-			if (player_object.left-mouse_x > 0 ):
-				bullet_x_step = -int(math.cos(winkel)*bullet_vel)
-
-			else:
-				bullet_x_step = int(math.cos(winkel)*bullet_vel)
-				
-			bullet_y_step = int(math.sin(winkel)*bullet_vel)
-
-			bullets.append(bullet(player_object.left + int(player_object.width/2), player_object.top + int(player_object.width/2), bullet_x_step, bullet_y_step, win))
 
 	
 	win.fill((255,255,255))
@@ -113,11 +107,13 @@ while running:
 					if(check_colission(object_, object_to_compare) or check_wall_colission(object_)):
 						object_.change_direction()
 						break
+
 			if(check_colission(object_, player_object)):
 				game_points = 0
 				player_object.top = player_start_y - player_radius
 				player_object.left = player_start_x - player_radius
 				map_objects = map_objects_init(win)
+
 		if(type(object_) is zone):
 			if(check_colission(object_, player_object)):
 				game_points += 500
@@ -154,23 +150,27 @@ while running:
 		
 
 
-	
+
 	for bullet_ in bullets:
 		bullet_.move()
 		for object_ in map_objects:
 			if(check_colission(object_, bullet_) or check_wall_colission(bullet_)):
 				bullets.remove(bullet_)
-				print(type(object_))
+				#print(type(object_))
 				if(type(object_) is enemy):
 					map_objects.remove(object_)
 					game_points += 100
 				break
 				
-	
+	#TODO create displayPoints()
 	game_points_text = font.render(str(game_points), True, (0, 0, 0))
 	win.blit(game_points_text, (display_width - game_points_text.get_width(), 0))
+
+
 	player_object.draw()
+	displayCurrentWeapon(player_object, win)
 	pg.display.update()
+
 
 pg.display.quit()
 pg.quit()

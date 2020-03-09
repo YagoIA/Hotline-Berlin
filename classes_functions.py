@@ -1,6 +1,7 @@
 from ast import literal_eval as make_tuple
 import pygame as pg
 import random
+from items import *
 
 bullet_vel = 20
 player_size = 10
@@ -15,9 +16,9 @@ class player:
 		self.width = radius*2
 		self.heigth = radius*2
 		self.win = win_
-		self.heldweapons = [0,1]
+		self.heldweapons = [0]
 		self.currentweapon = self.heldweapons[0]
-		self.ammunition = [50,3] #Len() = No. of weapons
+		self.ammunition = [50,0] #Len() = No. of weapons
 	def draw(self):
 		pg.draw.circle(self.win, (0,255,0), (self.left + int((self.width)/2), self.top + int((self.width)/2)), int((self.width)/2))
 
@@ -30,8 +31,6 @@ class player:
 	def next_weapon(self):
 		if self.heldweapons.index(self.currentweapon) != len(self.heldweapons)-1:
 			self.currentweapon = self.heldweapons[self.heldweapons.index(self.currentweapon)+1]
-
-			
 
 	def previous_weapon(self):
 		if self.heldweapons.index(self.currentweapon) != 0:
@@ -143,6 +142,12 @@ def map_objects_init(win):
 		if(line == "---zone---\n"):
 			mode = 3
 
+		if(line == "---shotgun-item---\n"):
+			mode = 4
+
+		if(line == "---pistol-item---\n"):
+			mode = 5
+
 		if(mode == 1 and line != "---wall---\n"):
 			map_objects.append(wall(make_tuple(line), win))
 
@@ -151,5 +156,11 @@ def map_objects_init(win):
 
 		if(mode == 3 and line != "---zone---\n"):
 			map_objects.append(zone(make_tuple(line),win))
+
+		if(mode == 4 and line != "---shotgun-item---\n"):
+			map_objects.append(shotgunItem(make_tuple(line),win))
+
+		if(mode == 5 and line != "---pistol-item---\n"):
+			map_objects.append(pistolItem(make_tuple(line),win))
 	return map_objects
 

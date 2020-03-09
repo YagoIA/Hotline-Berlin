@@ -3,6 +3,7 @@ import math
 import random
 from classes_functions import *
 from weapons import *
+from items import *
 
 audio_enabled = True
 
@@ -20,12 +21,16 @@ except pg.error as e:
 	print(e)
 
 
-
+### Loading assets ###
 if(audio_enabled == True):
 
 	pistolSound = pg.mixer.Sound("assets/pistol.wav")
 	shotgunSound = pg.mixer.Sound("assets/shotgun.wav")
+	beepSound = pg.mixer.Sound("assets/beep.wav")
 	weapon_sounds = [pistolSound,shotgunSound]
+
+weapon_sprites=[pg.image.load('assets/pistol.png'), pg.image.load('assets/shotgun.png')]
+
 
 game_points = 0
 display_heighth = 600
@@ -49,8 +54,6 @@ pg.display.set_caption("Hotline Berlin")
 
 
 
-
-
 #Map-init
 player_radius = 10
 player_start_x = 30
@@ -61,7 +64,7 @@ map_objects = map_objects_init(win)
 pg.mouse.set_cursor(*pg.cursors.broken_x)
 
 
-font = pg.font.SysFont("comicsansms", 24)
+font = pg.font.SysFont("Courier", 20)
 
 
 running_game = True
@@ -73,7 +76,7 @@ while running:
 	all_events = pg.event.get()
 	for event in all_events:
 		if event.type == pg.QUIT or keys[pg.K_ESCAPE]:
-		  running = False
+			running = False
 
 		if event.type == pg.MOUSEBUTTONDOWN:
 			if event.button == 1:
@@ -106,7 +109,7 @@ while running:
 
 		# if(((object_.top <= y + player_size) and (object_.top + object_.heigth+ walloffset >= y - player_size)) and (object_.left + object_.width <= x - player_size and object_.left + object_.width + walloffset >= x - player_size)):
 		# 	no_a = True
-		if(type(object_) is not zone):
+		if(type(object_) is not zone and isinstance(object_,Item) == False):
 			if((object_.top <= player_object.top + player_object.heigth) and (object_.top + object_.heigth >= player_object.top) and (object_.left == player_object.left + player_object.width)):
 				no_d = True
 				
@@ -125,7 +128,7 @@ while running:
 			object_.debug_draw()
 			object_.walk()
 			for object_to_compare in map_objects:
-				if(object_ != object_to_compare and type(object_to_compare) is not zone):
+				if(object_ != object_to_compare and type(object_to_compare) is not zone and isinstance(object_to_compare,Item) == False):
 					if(check_colission(object_, object_to_compare) or check_wall_colission(object_)):
 						object_.change_direction()
 						break
@@ -141,7 +144,13 @@ while running:
 				player_object.top = player_start_y - player_radius
 				player_object.left = player_start_x - player_radius
 				map_objects = map_objects_init(win)
-					
+
+		if(isinstance(object_,Item) == True):
+			if(check_colission(object_, player_object)):
+				object_.pickup(player_object, beepSound, audio_enabled)
+				map_objects.remove(object_)
+
+
 
 
 
@@ -175,23 +184,23 @@ while running:
 	for bullet_ in bullets:
 		bullet_.move()
 		for object_ in map_objects:
-			if(check_colission(object_, bullet_) or check_wall_colission(bullet_)):
+			if((check_colission(object_, bullet_) or check_wall_colission(bullet_)) and isinstance(object_,Item) == False):
 				bullets.remove(bullet_)
 				#print(type(object_))
 				if(type(object_) is enemy):
 					map_objects.remove(object_)
 					game_points += 100
 				break
-				
+
+	player_object.draw()
 	#TODO create displayPoints()
 	game_points_text = font.render("Punkte: " + str(game_points), True, (0, 0, 0))
 	win.blit(game_points_text, (display_width - game_points_text.get_width(), 0))
 
 
-	player_object.draw()
-	displayCurrentWeapon(player_object, win, font)
-	pg.display.update()
 
+	displayCurrentWeapon(player_object, win, font, weapon_sprites)
+	pg.display.update()
 
 pg.display.quit()
 pg.quit()

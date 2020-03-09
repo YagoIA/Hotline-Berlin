@@ -5,7 +5,7 @@ from time import *
 lastShot = [0,0]
 
 
-def displayCurrentWeapon(player_object, win, font):
+def displayCurrentWeapon(player_object, win, font, weapon_sprites):
     w, h = pg.display.get_surface().get_size()
 
     #Display Ammunition for current weapon
@@ -15,14 +15,12 @@ def displayCurrentWeapon(player_object, win, font):
 
     if(player_object.currentweapon == 0):
 
-
-        pistolImg = pg.image.load('assets/pistol.png')
-        pistolImgScaled = pg.transform.scale(pistolImg, (40, 40))
+        pistolImgScaled = pg.transform.scale(weapon_sprites[0], (40, 40))
         win.blit(pistolImgScaled, (w - (w / 20), 25))
 
     if (player_object.currentweapon == 1):
-        shotgunImg = pg.image.load('assets/shotgun.png')
-        shotgunImgScaled = pg.transform.scale(shotgunImg, (40, 40))
+
+        shotgunImgScaled = pg.transform.scale(weapon_sprites[1], (40, 40))
         win.blit(shotgunImgScaled, (w - (w / 20), 25))
 
 
@@ -97,5 +95,3 @@ def shootweapon(player_object, bullet_vel, bullets, audio_enabled, weapon_sounds
             return True
         else:
             return False
-
-

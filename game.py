@@ -59,7 +59,9 @@ player_radius = 10
 player_start_x = 30
 player_start_y = 30
 player_object = player(player_start_x, player_start_y, player_radius, win)
-map_objects = map_objects_init(win)
+#map_objects = map_objects_init(win)
+map_objects = create_map_broadsearch(win)
+
 
 pg.mouse.set_cursor(*pg.cursors.broken_x)
 
@@ -136,14 +138,14 @@ while running:
 			if(check_colission(object_, player_object)):
 				game_points = 0
 				player_object = player(player_start_x, player_start_y, player_radius, win)
-				map_objects = map_objects_init(win)
+				map_objects = create_map_broadsearch(win)
 
 		if(type(object_) is zone):
 			if(check_colission(object_, player_object)):
 				game_points += 500
 				player_object.top = player_start_y - player_radius
 				player_object.left = player_start_x - player_radius
-				map_objects = map_objects_init(win)
+				map_objects = create_map_broadsearch(win)
 
 		if(isinstance(object_,Item) == True):
 			if(check_colission(object_, player_object)):
@@ -183,8 +185,10 @@ while running:
 
 	for bullet_ in bullets:
 		bullet_.move()
+		if(check_wall_colission(bullet_)):
+			bullets.remove(bullet_)
 		for object_ in map_objects:
-			if((check_colission(object_, bullet_) or check_wall_colission(bullet_)) and isinstance(object_,Item) == False):
+			if(check_colission(object_, bullet_) and isinstance(object_,Item) == False):
 				bullets.remove(bullet_)
 				#print(type(object_))
 				if(type(object_) is enemy):

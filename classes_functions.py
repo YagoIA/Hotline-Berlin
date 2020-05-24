@@ -1,6 +1,7 @@
 from ast import literal_eval as make_tuple
 import pygame as pg
 import random
+import time
 from items import *
 
 bullet_vel = 20
@@ -18,7 +19,7 @@ class player:
 		self.win = win_
 		self.heldweapons = [0]
 		self.currentweapon = self.heldweapons[0]
-		self.ammunition = [50,0] #Len() = No. of weapons
+		self.ammunition = [14,0] #Len() = No. of weapons
 	def draw(self):
 		pg.draw.circle(self.win, (0,255,0), (self.left + int((self.width)/2), self.top + int((self.width)/2)), int((self.width)/2))
 
@@ -163,4 +164,104 @@ def map_objects_init(win):
 		if(mode == 5 and line != "---pistol-item---\n"):
 			map_objects.append(pistolItem(make_tuple(line),win))
 	return map_objects
+
+def coordinates_to_wall(a,b):
+	if((a[0]-b[0])==0):
+		if((a[1]-b[1])==-1):
+			return((a[0]*100,(a[1]+1)*100,100,20))
+		else:
+			return((a[0]*100,a[1]*100,100,20))
+	else:
+		if((a[0]-b[0])==-1):
+			return(((a[0]+1)*100,a[1]*100,20,100))
+		else:
+			return((a[0]*100,a[1]*100,20,100))
+
+def create_map_broadsearch(win):
+	#file = open("map_01.txt", "rw")
+	map_objects = []
+
+	w, h = pg.display.get_surface().get_size()
+
+	square_a = 100
+
+	amount_horizontal_squares = int(w / square_a)
+	amount_vertical_squares = int(h / square_a)
+
+	all_squares = amount_vertical_squares * amount_horizontal_squares
+
+	vertex_list = []
+	walls = []
+	for i in range(0, amount_vertical_squares):
+		for j in range(0, amount_horizontal_squares):
+			vertex = [[j,i], [], False, None]
+			if j != amount_horizontal_squares - 1:
+				vertex[1].append([j+1,i])#
+				if(((j+1)*100,i*100,20,100) not in walls):
+					walls.append(((j+1)*100,i*100,20,100))
+			if j != 0:
+				vertex[1].append([j-1,i])
+				if(((j*100),i*100,20,100) not in walls):
+					walls.append((j*100,i*100,20,100))
+
+			if i != 0:
+				#[0] is Position [1] is neighbors
+				vertex[1].append([j,i-1])
+				if((j*100,i*100,100,20) not in walls):
+					walls.append((j*100,i*100,100,20))
+			if i != amount_vertical_squares-1:
+				#[0] is Position [1] is neighbors
+				vertex[1].append([j,i+1])
+				if((j*100,(i+1)*100,120,20) not in walls):
+					walls.append((j*100,(i+1)*100,100,20))
+
+			vertex_list.append(vertex)
+
+	queue = []
+	queue.insert(0,vertex_list[0])
+	last = None
+	while len(queue) != 0:
+		c = queue.pop()
+
+		#print(c)
+		if(c[2] == False):
+			c[2] = True
+			random.shuffle(c[1])
+			for adjacent in c[1]:
+				for x in vertex_list:
+					if(x[0] == adjacent and x[2] == False):
+						x[3] = c[0]
+						queue.append(x)
+			if(c[3]!= None):
+				if(coordinates_to_wall(c[0],c[3]) in walls):
+					walls.remove(coordinates_to_wall(c[0],c[3]))
+
+
+	items_coords =[[0,0],[0,1],[1,0],[amount_horizontal_squares-1,amount_vertical_squares-1]]
+
+	#enemys and items
+	for y in range(0,10):
+		placed = False
+		while(placed==False):
+			x_cor=random.randint(0,amount_horizontal_squares-1)
+			y_cor=random.randint(0,amount_vertical_squares-1)
+			if([x_cor,y_cor] not in items_coords):
+				placed=True
+				items_coords.append([x_cor,y_cor])
+				if(y<5):
+					map_objects.append(enemy(((x_cor*100)+50,(y_cor*100)+50, random.randint(0,1),random.randint(0,1)), win))
+				if(5<=y and y<8):
+					map_objects.append(pistolItem(((x_cor*100)+50,(y_cor*100)+50, 10),win))
+				if(8<=y):
+					map_objects.append(shotgunItem(((x_cor*100)+50,(y_cor*100)+50, 10),win))
+				
+
+			#else:
+				#print([x_cor,y_cor])
+
+	for x in walls:
+		map_objects.append(wall(x,win))
+	map_objects.append(zone((720,520,80,80),win))
+	return map_objects
+
 

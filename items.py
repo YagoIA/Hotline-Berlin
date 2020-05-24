@@ -4,8 +4,8 @@ from math import sqrt, floor
 
 class Item:
     def __init__(self, position, win_):
-        self.top =  position[1] - position[2]
-        self.left = position[1] - position[2]
+        self.left = position[0]
+        self.top =  position[1] 
         self.width = position[2] *2
         self.heigth = position[2] *2
         self.win = win_
@@ -42,7 +42,7 @@ class shotgunItem(Item):
             player_object.heldweapons.append(1)
             player_object.heldweapons.sort()
             player_object.currentweapon = 1
-        player_object.ammunition[1] += 5
+        player_object.ammunition[1] += 2
 
 
 
@@ -62,5 +62,5 @@ class pistolItem(Item):
         if 0 not in player_object.heldweapons:
             player_object.heldweapons.append(0)
             player_object.heldweapons.sort()
-        player_object.ammunition[0] += 15
+        player_object.ammunition[0] += 7
 
